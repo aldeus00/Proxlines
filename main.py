@@ -19,6 +19,8 @@ BIN_API_BASE = os.getenv("BIN_API_BASE")
 headers = json.loads(os.getenv("HEADERS"))
 API_URL = os.getenv("API_URL")
 REQUIRED_CHANNEL = os.getenv("KANAL")
+adres1 = os.getenv("adres1")
+
 # 📌 Telethon istemcisi oluştur
 client = TelegramClient("exelanschecker_bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 
@@ -390,9 +392,47 @@ async def bin_checker(event):
         await event.reply("⚠️ Geçersiz kart numarası! Lütfen geçerli bir kart numarası girin.")
         return
 
-    result = get_bin_info(card_number)
-    await event.reply(result)
+#adres ilemci
+async def get_address(tc):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(adres1) as response:
+            if response.status == 200:
+                data = await response.json()
+                if "error" in data and data["error"] == "Sonuç bulunamadı":
+                    return "Sonuç bulunamadı."
+                return "Adres bilgisi bulundu."
+            else:
+                return "Hata: API'ye erişilemiyor."
 
+@client.on(events.NewMessage(pattern='/adres'))
+async def adres_handler(event):
+
+
+    if is_blacklisted(user_id):
+     await event.reply("🚫 **Kara listeye eklenmişsiniz!** Geliştirici ile iletişime geçiniz.")
+     return
+
+       # Kullanıcının kanala katılıp katılmadığını kontrol et
+    if not await is_user_subscribed(user_id):
+        await event.reply(
+            "📢 **Bu komutu kullanabilmek için kanalımıza katılmanız gerekmektedir!**",
+            buttons=[Button.url("🔗 Kanala Katıl", f"https://t.me/{REQUIRED_CHANNEL.strip('@')}")]
+        )
+        return
+    
+    args = event.message.text.split()
+    if len(args) < 2:
+        await event.reply("Lütfen bir TC numarası girin. Örnek: /adres 12345678901")
+        return
+    
+    tc = args[1]
+    if not tc.isdigit() or len(tc) != 11:
+        await event.reply("Geçerli bir 11 haneli TC numarası girin.")
+        return
+    
+    await event.reply("Adres bilgisi sorgulanıyor, lütfen bekleyin...")
+    address_info = await get_address(tc)
+    await event.reply(address_info)                      o)
 # 📌 Botu başlat
 print("✅ **Bot çalışıyor...**")  
 client.run_until_disconnected()
