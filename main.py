@@ -395,31 +395,20 @@ async def bin_checker(event):
 #adres ilemci
 async def get_address(tc):
     async with aiohttp.ClientSession() as session:
-        async with session.get(adres1) as response:
+        async with session.get(url) as response:
             if response.status == 200:
-                data = await response.json()
-                if "error" in data and data["error"] == "Sonuç bulunamadı":
-                    return "Sonuç bulunamadı."
-                return "Adres bilgisi bulundu."
+                try:
+                    data = await response.json()
+                    if "error" in data and data["error"] == "Sonuç bulunamadı":
+                        return "Sonuç bulunamadı."
+                    return "Adres bilgisi bulundu."
+                except aiohttp.ContentTypeError:
+                    return "Hata: Geçersiz içerik türü alındı, API yanıtı JSON formatında değil."
             else:
                 return "Hata: API'ye erişilemiyor."
 
 @client.on(events.NewMessage(pattern='/adres'))
 async def adres_handler(event):
-
-
-    if is_blacklisted(user_id):
-     await event.reply("🚫 **Kara listeye eklenmişsiniz!** Geliştirici ile iletişime geçiniz.")
-     return
-
-       # Kullanıcının kanala katılıp katılmadığını kontrol et
-    if not await is_user_subscribed(user_id):
-        await event.reply(
-            "📢 **Bu komutu kullanabilmek için kanalımıza katılmanız gerekmektedir!**",
-            buttons=[Button.url("🔗 Kanala Katıl", f"https://t.me/{REQUIRED_CHANNEL.strip('@')}")]
-        )
-        return
-    
     args = event.message.text.split()
     if len(args) < 2:
         await event.reply("Lütfen bir TC numarası girin. Örnek: /adres 12345678901")
@@ -432,7 +421,8 @@ async def adres_handler(event):
     
     await event.reply("Adres bilgisi sorgulanıyor, lütfen bekleyin...")
     address_info = await get_address(tc)
-    await event.reply(address_info)                      o)
+    await event.reply(address_info)
+                     
 # 📌 Botu başlat
 print("✅ **Bot çalışıyor...**")  
 client.run_until_disconnected()
