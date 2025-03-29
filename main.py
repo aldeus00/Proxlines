@@ -395,15 +395,16 @@ async def bin_checker(event):
 #adres ilemci
 async def get_address(tc):
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
+        async with session.get(adres1) as response:
             if response.status == 200:
                 try:
-                    data = await response.json()
+                    text_response = await response.text()
+                    data = json.loads(text_response)  # JSON formatına çevirmeyi dene
                     if "error" in data and data["error"] == "Sonuç bulunamadı":
                         return "Sonuç bulunamadı."
                     return "Adres bilgisi bulundu."
-                except aiohttp.ContentTypeError:
-                    return "Hata: Geçersiz içerik türü alındı, API yanıtı JSON formatında değil."
+                except json.JSONDecodeError:
+                    return f"Hata: API yanıtı JSON formatında değil. Yanıt: {text_response[:200]}"
             else:
                 return "Hata: API'ye erişilemiyor."
 
