@@ -399,7 +399,7 @@ async def adres_sorgu(event):
     tc_no = event.pattern_match.group(1)
 
     try:
-        response = requests.get(API_URL + tc_no)
+        response = requests.get(adres + tc_no)
 
         if response.status_code == 200:
             data = json.loads(response.text)  # JSON verisini çözümle
