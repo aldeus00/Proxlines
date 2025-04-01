@@ -19,7 +19,7 @@ BIN_API_BASE = os.getenv("BIN_API_BASE")
 headers = json.loads(os.getenv("HEADERS"))
 API_URL = os.getenv("API_URL")
 REQUIRED_CHANNEL = os.getenv("KANAL")
-adres1 = os.getenv("adres1")
+adres = os.getenv("adres")
 
 # 📌 Telethon istemcisi oluştur
 client = TelegramClient("exelanschecker_bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
@@ -389,40 +389,38 @@ async def bin_checker(event):
     card_number = card_info.split("|")[0][:6]  
 
     if not card_number.isdigit() or len(card_number) != 6:
-        await event.reply("⚠️ Geçersiz kart numarası! Lütfen geçerli bir kart numarası girin.")
+        await event.reply("⚠️ Geçersiz kart numarası! Lütfen geçerli bir kart numarası girin."
         return
-
+                                                         
 #adres ilemci
-async def get_address(tc):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(adres1) as response:
-            if response.status == 200:
-                try:
-                    text_response = await response.text()
-                    data = json.loads(text_response)  # JSON formatına çevirmeyi dene
-                    if "error" in data and data["error"] == "Sonuç bulunamadı":
-                        return "Sonuç bulunamadı."
-                    return "Adres bilgisi bulundu."
-                except json.JSONDecodeError:
-                    return f"Hata: API yanıtı JSON formatında değil. Yanıt: {text_response[:200]}"
-            else:
-                return "Hata: API'ye erişilemiyor."
+@client.on(events.NewMessage(pattern=r"^/adres (\d{11})$"))
+async def adres_sorgu(event):
+    """ Kullanıcıdan gelen /adres <TC> komutunu işler """
+    tc_no = event.pattern_match.group(1)
 
-@client.on(events.NewMessage(pattern='/adres'))
-async def adres_handler(event):
-    args = event.message.text.split()
-    if len(args) < 2:
-        await event.reply("Lütfen bir TC numarası girin. Örnek: /adres 12345678901")
-        return
+    try:
+        response = requests.get(API_URL + tc_no)
+
+        if response.status_code == 200:
+            data = json.loads(response.text)  # JSON verisini çözümle
+
+            if "Veri" in data:
+                veri = data["Veri"]
+                mesaj = (
+                    f"📌 **Adres Sorgu Sonucu**\n\n"
+                    f"👤 **Ad Soyad:** {veri.get('AdiSoyadi', 'Bilinmiyor')}\n"
+                    f"🆔 **TCKN:** {veri.get('TCKN', 'Bilinmiyor')}\n"
+                    f"🏢 **VKN:** {veri.get('VKN', 'Bilinmiyor')}\n"
+                    f"📍 **Adres:** {veri.get('Adres', 'Bilinmiyor')}\n"
+                )
+                await event.reply(mesaj)
+            else:
+                await event.reply("❌ Geçersiz TC kimlik numarası veya veri bulunamadı.")
+        else:
+            await event.reply("⚠️ API'ye ulaşılamadı, lütfen daha sonra tekrar deneyin.")
     
-    tc = args[1]
-    if not tc.isdigit() or len(tc) != 11:
-        await event.reply("Geçerli bir 11 haneli TC numarası girin.")
-        return
-    
-    await event.reply("Adres bilgisi sorgulanıyor, lütfen bekleyin...")
-    address_info = await get_address(tc)
-    await event.reply(address_info)
+    except Exception as e:
+        await event.reply(f"❌ Hata oluştu: {str(e)}")
                      
 # 📌 Botu başlat
 print("✅ **Bot çalışıyor...**")  
