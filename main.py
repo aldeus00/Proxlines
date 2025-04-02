@@ -19,10 +19,15 @@ BIN_API_BASE = os.getenv("BIN_API_BASE")
 headers = json.loads(os.getenv("HEADERS"))
 API_URL = os.getenv("API_URL")
 REQUIRED_CHANNEL = os.getenv("KANAL")
+PROXY_HOST = os.getenv("PROXY_HOST")
+PROXY_PORT = int(os.getenv("PROXY_PORT"))
 adres = os.getenv("adres")
 
 # 📌 Telethon istemcisi oluştur
-client = TelegramClient("exelanschecker_bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
+client = TelegramClient("zayexpay_bot", API_ID, API_HASH,
+                        connection=connection.ConnectionTcpMTProxy,
+                        proxy=(PROXY_HOST, PROXY_PORT)
+).start(bot_token=BOT_TOKEN)
 
 # 📌 İşlem durumunu takip eden değişken
 processing = {}
