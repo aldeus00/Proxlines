@@ -24,7 +24,6 @@ REQUIRED_CHANNEL = os.getenv("KANAL")
 client = TelegramClient("exelanschecker_bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 # 📌 İşlem durumunu takip eden değişken
 processing = {}
-
 # 📌 Kara liste kontrol fonksiyonu (örnek kontrol)
 def is_blacklisted(user_id):
     # Kara listeye kontrol mekanizması ekleyebilirsiniz
@@ -388,38 +387,7 @@ async def bin_checker(event):
 
     if not card_number.isdigit() or len(card_number) != 6:
         await event.reply("⚠️ Geçersiz kart numarası! Lütfen geçerli bir kart numarası girin."
-        return
-                                                         
-#adres ilemci
-@client.on(events.NewMessage(pattern=r"^/adres (\d{11})$"))
-async def adres_sorgu(event):
-    """ Kullanıcıdan gelen /adres <TC> komutunu işler """
-    tc_no = event.pattern_match.group(1)
-
-    try:
-        response = requests.get(adres + tc_no)
-
-        if response.status_code == 200:
-            data = json.loads(response.text)  # JSON verisini çözümle
-
-            if "Veri" in data:
-                veri = data["Veri"]
-                mesaj = (
-                    f"📌 **Adres Sorgu Sonucu**\n\n"
-                    f"👤 **Ad Soyad:** {veri.get('AdiSoyadi', 'Bilinmiyor')}\n"
-                    f"🆔 **TCKN:** {veri.get('TCKN', 'Bilinmiyor')}\n"
-                    f"🏢 **VKN:** {veri.get('VKN', 'Bilinmiyor')}\n"
-                    f"📍 **Adres:** {veri.get('Adres', 'Bilinmiyor')}\n"
-                )
-                await event.reply(mesaj)
-            else:
-                await event.reply("❌ Geçersiz TC kimlik numarası veya veri bulunamadı.")
-        else:
-            await event.reply("⚠️ API'ye ulaşılamadı, lütfen daha sonra tekrar deneyin.")
-    
-    except Exception as e:
-        await event.reply(f"❌ Hata oluştu: {str(e)}")
-                     
+        return                                                         
 # 📌 Botu başlat
 print("✅ **Bot çalışıyor...**")  
 client.run_until_disconnected()
