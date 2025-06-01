@@ -21,11 +21,7 @@ API_URL = os.getenv("API_URL")
 REQUIRED_CHANNEL = os.getenv("KANAL")
 
 # 📌 Telethon istemcisi oluştur
-client = TelegramClient("zayexpay_bot", API_ID, API_HASH,
-                        connection=connection.ConnectionTcpMTProxy,
-                        proxy=(PROXY_HOST, PROXY_PORT)
-).start(bot_token=BOT_TOKEN)
-
+client = TelegramClient("exelanschecker_bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 # 📌 İşlem durumunu takip eden değişken
 processing = {}
 
