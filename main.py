@@ -386,7 +386,7 @@ async def bin_checker(event):
     card_number = card_info.split("|")[0][:6]  
 
     if not card_number.isdigit() or len(card_number) != 6:
-        await event.reply("⚠️ Geçersiz kart numarası! Lütfen geçerli bir kart numarası girin."
+        await event.reply("⚠️ Geçersiz kart numarası! Lütfen geçerli bir kart numarası girin.")
         return                                                         
 # 📌 Botu başlat
 print("✅ **Bot çalışıyor...**")  
