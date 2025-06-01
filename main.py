@@ -341,7 +341,7 @@ def get_bin_info(bin_number):
         response = requests.get(api_url, headers=json.loads(os.getenv("HEADERS")))  
         
         if response.status_code != 200:
-            return "⚠️ Hatalı veya geçersiz kart numarası! Lütfen kontrol edip tekrar deneyin."
+            return "⚠️ Hatalı veya geçersiz kart numarası! Lütfen kontrol edip tekrar deneyin.")
         
         data = response.json()
         
